@@ -1,0 +1,166 @@
+Os insights sobre esse trabalho são bastantes satisfatórios e enriquecedores, nós podemos utilizar esse serviço do azure para inúmeros projetos e trabalhos, por exemplo: Se eu tenho uma oficina de motos 
+ou um restaurante. Eu consigo através dos feebacks de clientes e das suas palavras chaves saber no que estou agradando ou deixando a desejar.
+Irá poupar o trabalho de ler milhares de feedbacks e indentificar o X onde estamos errando. 
+O Serviço de IA do Azure nos ajuda a identificar a raiz do problema, nos poupa esforço desnecessário  e otimiza nosso tempo.
+  por exemplo nesse código onde eu coloco as criticas negativas para identificar onde estou errando em meu estabelecimento: 
+{
+  "@odata.context": "https://projeto-mayn.search.windows.net/indexes('coffee-index')/$metadata#docs(*)",
+  "@odata.count": 1,
+  "value": [
+    {
+      "@search.score": 0.2876821,
+      "content": "Review: Today I was truly disappointed with how long I had to wait for the pastries I ordered ahead of time. When I got my box, some of the pastries seemed stale. Terrible experience!  \nDate: October 23, 2018\nLocation: Chicago, Illinois \n\n",
+      "metadata_storage_path": "aHR0cHM6Ly9tYXlubm5zdG9yYWdlLmJsb2IuY29yZS53aW5kb3dzLm5ldC9jb2ZmZXJldmlld3MvcmV2aWV3LTguZG9jeA2",
+      "locations": [
+        "Chicago",
+        "Illinois"
+      ],
+      "keyphrases": [
+        "Terrible experience",
+        "Review",
+        "pastries",
+        "time",
+        "box",
+        "Date",
+        "October",
+        "Location",
+        "Chicago",
+        "Illinois"
+      ],
+      "language": "en",
+      "merged_content": "Review: Today I was truly disappointed with how long I had to wait for the pastries I ordered ahead of time. When I got my box, some of the pastries seemed stale. Terrible experience!  \nDate: October 23, 2018\nLocation: Chicago, Illinois \n\n",
+      "text": [],
+      "layoutText": [],
+      "imageTags": [],
+      "imageCaption": [],
+      "sentiment": "[\"negative\"]"
+    }
+  ]
+}
+
+através do codigo sentiment, e negative eu consigo identificar quais são as principais reclamações.
+
+
+  segue  o passo a passo:
+
+
+
+Criar um recurso de pesquisa do Azure AI
+Entre no portal do Azure .
+
+Clique no botão + Criar um recurso , pesquise por Azure AI Search e crie um recurso do Azure AI Search com as seguintes configurações:
+
+Assinatura : sua assinatura do Azure .
+Grupo de recursos : selecione ou crie um grupo de recursos com um nome exclusivo .
+Nome do serviço : Um nome exclusivo .
+Localização : Escolha qualquer região disponível. Se estiver no leste dos EUA, use “East US 2” .
+Nível de preço : Básico
+Selecione Revisar + criar e, depois de ver a resposta Validação bem-sucedida , selecione Criar .
+
+Após a conclusão da implantação, selecione Ir para o recurso . Na página de visão geral do Azure AI Search, você pode adicionar índices, importar dados e pesquisar índices criados.
+
+
+  Criar um recurso de serviços de IA do Azure
+Você precisará provisionar um recurso de serviços de IA do Azure que esteja no mesmo local que seu recurso de Pesquisa de IA do Azure. Sua solução de pesquisa usará esse recurso para enriquecer os dados no datastore com insights gerados por IA.
+
+Retorne à página inicial do portal do Azure. Clique no botão ＋Criar um recurso e pesquise por Azure AI services . Selecione criar um plano de serviços do Azure AI . Você será levado a uma página para criar um recurso de serviços do Azure AI. Configure-o com as seguintes configurações:
+Assinatura : sua assinatura do Azure .
+Grupo de recursos : o mesmo grupo de recursos que seu recurso do Azure AI Search .
+Região : o mesmo local do seu recurso do Azure AI Search .
+Nome : Um nome único .
+Nível de preço : Standard S0
+Ao marcar esta caixa, reconheço que li e compreendi todos os termos abaixo : Selecionado
+Selecione Revisar + criar . Após ver a resposta Validação aprovada , selecione Criar .
+
+Aguarde a conclusão da implantação e visualize os detalhes da implantação.
+
+
+  Criar uma conta de armazenamento
+Retorne à página inicial do portal do Azure e selecione o botão + Criar um recurso .
+
+Pesquise por conta de armazenamento e crie um recurso de conta de armazenamento com as seguintes configurações:
+Assinatura : sua assinatura do Azure .
+Grupo de recursos : o mesmo grupo de recursos dos recursos do Azure AI Search e dos serviços do Azure AI .
+Nome da conta de armazenamento : Um nome exclusivo .
+Localização : Escolha qualquer local disponível .
+Desempenho : Padrão
+Redundância : Armazenamento redundante local (LRS)
+Clique em Review e depois em Create . Aguarde a conclusão da implantação e vá para o recurso implantado.
+
+Na conta de Armazenamento do Azure que você criou, no painel de menu à esquerda, selecione Configuração (em Configurações ).
+Altere a configuração de Permitir acesso anônimo do Blob para Habilitado e selecione Salvar .
+
+
+Carregar documentos para o armazenamento do Azure:
+Selecione + Container . Um painel no seu lado direito abre.
+
+Insira as seguintes configurações e clique em Criar :
+Nome : coffee-reviews
+Nível de acesso público : Container (acesso de leitura anônimo para containers e blobs)
+Avançado : sem alterações .
+Em uma nova aba do navegador, baixe as avaliações de café compactadas de https://aka.ms/mslearn-coffee-reviewse extraia os arquivos para a pasta de avaliações .
+
+No portal do Azure, selecione seu contêiner coffee-reviews . No contêiner, selecione Upload .
+
+  No painel Carregar blob , selecione Selecionar um arquivo .
+
+Na janela do Explorer, selecione todos os arquivos na pasta de avaliações , selecione Abrir e, em seguida, selecione Carregar .
+
+  Após o upload ser concluído, você pode fechar o painel Upload blob . Seus documentos agora estão no seu contêiner de armazenamento coffee-reviews .
+Indexar os documentos
+Depois de ter os documentos no armazenamento, você pode usar o Azure AI Search para extrair insights dos documentos. O portal do Azure fornece um assistente Importar dados . Com esse assistente, você pode criar automaticamente um índice e um indexador para fontes de dados com suporte. Você usará o assistente para criar um índice e importar seus documentos de pesquisa do armazenamento para o índice do Azure AI Search.
+
+No portal do Azure, navegue até seu recurso do Azure AI Search. Na página Visão geral , selecione Importar dados .
+
+
+  Na página Conectar aos seus dados , na lista Fonte de dados , selecione Azure Blob Storage . Preencha os detalhes do armazenamento de dados com os seguintes valores:
+Fonte de dados : Armazenamento de Blobs do Azure
+Nome da fonte de dados : coffee-customer-data
+Dados a extrair : Conteúdo e metadados
+Modo de análise : Padrão
+String de conexão : *Selecione Choose an existing connection . Selecione sua conta de armazenamento, selecione o contêiner coffee-reviews e clique em Select .
+Autenticação de identidade gerenciada : Nenhuma
+Nome do contêiner : esta configuração é preenchida automaticamente depois que você escolhe uma conexão existente .
+Pasta Blob : deixe em branco .
+Descrição : Avaliações das cafeterias Fourth Coffee.
+Selecione Avançar: Adicionar habilidades cognitivas (opcional) .
+
+
+Em Salvar enriquecimentos em um armazenamento de conhecimento , selecione:
+Projeções de imagem
+Documentos
+Páginas
+Frases-chave
+Entidades
+Detalhes da imagem
+Referências de imagem
+
+
+Selecione Choose an existing connection (Escolha uma conexão existente) . Escolha a conta de armazenamento que você criou anteriormente.
+Clique em + Contêiner para criar um novo contêiner chamado knowledge-store com o nível de privacidade definido como Privado e selecione Criar .
+Selecione o contêiner de armazenamento de conhecimento e clique em Selecionar na parte inferior da tela.
+Selecione Azure blob projections: Document . Uma configuração para Container name com o contêiner knowledge-store preenchido automaticamente é exibida. Não altere o nome do contêiner.
+
+Selecione Próximo: Personalizar índice de destino . Altere o nome do índice para coffee-index .
+
+Certifique-se de que a Chave esteja definida como metadata_storage_path . Deixe o nome do Suggester em branco e o modo Search preenchido automaticamente.
+
+Revise as configurações padrão dos campos de índice. Selecione filtrável para todos os campos que já estão selecionados por padrão. Os nomes de campo que precisam ser marcados como filtráveis ​​incluem: content, locations, keyphrases, sentiment, merged_content, text, layoutText, imageTags, imageCaption.
+
+Selecione Avançar: Criar um indexador .
+
+Altere o nome do indexador para coffee-indexer .
+
+Deixe a programação definida como Uma vez .
+
+Expanda as opções Avançadas . Certifique-se de que a opção Base-64 Encode Keys esteja selecionada, pois as chaves de codificação podem tornar o índice mais eficiente.
+
+Selecione Enviar para criar a fonte de dados, conjunto de habilidades, índice e indexador. O indexador é executado automaticamente e executa o pipeline de indexação, que:
+Extrai os campos de metadados do documento e o conteúdo da fonte de dados.
+Executa o conjunto de habilidades cognitivas para gerar campos mais enriquecidos.
+Mapeia os campos extraídos para o índice.
+Retorne à sua página de recursos do Azure AI Search. No painel esquerdo, em Search Management , selecione Indexers . Selecione o coffee-indexer recém-criado . Aguarde um minuto e selecione ↻ Refresh até que o Status indique sucesso.
+
+Selecione o nome do indexador para ver mais detalhes.
+
+
